@@ -1,19 +1,106 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Form @submitForm="onFormSubmit" />
+    <TotalBalance :total="totalBalance" />
+    <BudgetList
+      :list="filterList"
+      @onDeleteItem="onDeleteItem"
+      @onListShow="onListShow"
+    />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import BudgetList from '@/components/BudgetList';
+import TotalBalance from '@/components/TotalBalance';
+import Form from '@/components/Form';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
-}
+    BudgetList,
+    TotalBalance,
+    Form,
+  },
+
+  data: () => ({
+    list: {
+      // 1: {
+      //   type: 'INCOME',
+      //   value: 100,
+      //   comment: 'Some comment',
+      //   id: 1,
+      // },
+      // 2: {
+      //   type: 'OUTCOME',
+      //   value: -50,
+      //   comment: 'Some outcome comment',
+      //   id: 2,
+      // },
+    },
+    fList: null,
+  }),
+
+  computed: {
+    totalBalance() {
+      return Object.values(this.list).reduce(
+        (acc, item) => acc + item.value,
+        0
+      );
+    },
+
+    filterList(param) {
+      if (!this.fList) {
+        return this.filteredList(this.list, param);
+      }
+      return this.fList;
+    },
+  },
+
+  methods: {
+    onDeleteItem(id) {
+      this.$delete(this.list, id);
+      this.onListShow();
+    },
+
+    onFormSubmit(data) {
+      const newObj = {
+        ...data,
+        id: String(Math.random()),
+      };
+
+      this.$set(this.list, newObj.id, newObj);
+      this.onListShow();
+    },
+
+    onListShow(param) {
+      this.fList = this.filteredList(this.list, param);
+    },
+
+    filteredList({ ...list }, param) {
+      if (param === 1) {
+        return Object.values(list)
+          .filter((item) => item.type === 'INCOME')
+          .reduce((acc, item) => {
+            acc[item.id] = item;
+            return acc;
+          }, {});
+      } else if (param === -1) {
+        return Object.values(list)
+          .filter((item) => item.type === 'OUTCOME')
+          .reduce((acc, item) => {
+            acc[item.id] = item;
+            return acc;
+          }, {});
+      } else {
+        return Object.values(list).reduce((acc, item) => {
+          acc[item.id] = item;
+          return acc;
+        }, {});
+      }
+    },
+  },
+};
 </script>
 
 <style>
