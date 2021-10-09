@@ -9,13 +9,12 @@
     <ElDialog
       title="Are you sure?"
       :visible.sync="dialogVisible"
-      :before-close="handleClose"
       width="30%"
       :show-close="false"
     >
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="deleteItem(item.id)"
+        <el-button type="primary" @click="onDeleteItem(item.id)"
           >Delete</el-button
         >
       </span>
@@ -24,6 +23,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 export default {
   name: 'BudgetListItem',
   props: {
@@ -38,16 +38,11 @@ export default {
   }),
 
   methods: {
-    deleteItem(id) {
-      this.$emit('deleteItem', id);
-    },
+    ...mapActions('budget', ['deleteItem']),
 
-    handleClose(done) {
-      this.$confirm('Are you sure to close this dialog?')
-        .then(() => {
-          done();
-        })
-        .catch(() => {});
+    onDeleteItem(id) {
+      this.dialogVisible = false;
+      this.deleteItem(id);
     },
   },
 

@@ -4,19 +4,19 @@
       <div slot="header" class="clearfix">
         <span class="header">{{ header }}</span>
         <span class="button-pane">
-          <ElButton class="button" type="success" @click="onListShow(1)"
+          <ElButton class="button" type="success" @click="filterList('INCOME')"
             >income</ElButton
           >
-          <ElButton class="button" type="danger" @click="onListShow(-1)"
+          <ElButton class="button" type="danger" @click="filterList('OUTCOME')"
             >outcome</ElButton
           >
-          <ElButton class="button" type="primary" @click="onListShow()"
+          <ElButton class="button" type="primary" @click="filterList('ALL')"
             >all</ElButton
           >
         </span>
       </div>
       <template v-if="!isEmpty">
-        <div v-for="(item, prop) in list" :key="prop">
+        <div v-for="(item, prop) in filteredList" :key="prop">
           <BudgetListItem :item="item" @deleteItem="onDeleteItem" />
         </div>
       </template>
@@ -27,18 +27,13 @@
 
 <script>
 import BudgetListItem from '@/components/BudgetListItem';
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
   name: 'BudgetList',
 
   components: {
     BudgetListItem,
-  },
-  props: {
-    list: {
-      type: Object,
-      default: () => ({}),
-    },
   },
 
   data: () => ({
@@ -47,18 +42,20 @@ export default {
   }),
 
   computed: {
+    ...mapGetters('budget', ['getList', 'filteredList']),
+
     isEmpty() {
-      return !Object.keys(this.list).length;
+      return !Object.keys(this.getList).length;
     },
   },
 
   methods: {
+    ...mapActions('budget', ['changeSortType']),
     onDeleteItem(id) {
       this.$emit('onDeleteItem', id);
     },
-
-    onListShow(param) {
-      this.$emit('onListShow', param);
+    filterList(value) {
+      return this.changeSortType(value);
     },
   },
 };

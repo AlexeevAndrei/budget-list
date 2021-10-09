@@ -1,24 +1,21 @@
 <template>
   <div class="total-value">
-    <span :class="classObj">Balance: {{ total }}</span>
+    <span :class="balanceColor">Balance: {{ balance }}</span>
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex';
 export default {
   name: 'TotalBalance',
-  props: {
-    total: {
-      type: Number,
-      default: 0,
-    },
-  },
 
   computed: {
-    classObj() {
+    ...mapGetters('budget', ['balance']),
+
+    balanceColor() {
       return {
-        'positive-class': this.total > 0,
-        'negative-class': this.total < 0,
-        'zero-class': this.total === 0,
+        'positive-class': this.balance > 0,
+        'negative-class': this.balance < 0,
+        'zero-class': this.balance === 0,
       };
     },
   },
